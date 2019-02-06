@@ -1,9 +1,9 @@
 declare var ethers;
 
 function getProp(propertyName: string, context: { [key: string]: any }) {
-  const state = context.history.location
-    ? context.history.location.state || {}
-    : {};
+  const location = context.history.location || {};
+  const state = location.state || {};
+  const query = location.query || {};
   const query = context.history.location
     ? context.history.location.query || {}
     : {};
