@@ -22,6 +22,8 @@ export class AppWaiting {
   @Prop({ mutable: true }) betAmount: string = "";
   @Prop({ mutable: true }) opponentName: string = "";
   @Prop({ mutable: true }) isProposing: boolean = false;
+  @Prop() matchmake: () => void = () => {};
+  @Prop() proposeVirtualInstall: () => void = () => {};
   @State() seconds: number = 5;
   @State() isCountdownStarted: boolean = false;
 
@@ -30,9 +32,14 @@ export class AppWaiting {
     this.isProposing = getProp("isProposing", this);
   }
 
-  countDown() {
-    if (this.seconds === 1) {
-      return;
+  async countDown() {
+    if (this.seconds === 0) {
+      this.seconds = 5;
+      console.log('match')
+      this.matchmake();
+      console.log('post matcch')
+      this.proposeVirtualInstall();
+      console.log('post propose')
     }
     setTimeout(() => {
       this.seconds = this.seconds - 1;

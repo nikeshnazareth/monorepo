@@ -30,24 +30,23 @@ export class AppWager {
   @State() betAmount: string = "0.01";
   @State() myName: string = "";
 
-  @State() opponent: {
+  @Prop() opponent: {
     attributes: {
       username?: string;
       ethAddress?: Address;
       nodeAddress?: string;
     };
   } = { attributes: {} };
-  @State() intermediary: string = "";
-  @State() isError: boolean = false;
-  @State() isWaiting: boolean = false;
-  @State() error: any;
+  @Prop() isWaiting: boolean = false;
   @Prop() account: any;
+  @Prop() intermediary: string = "";
   @Prop() standalone: boolean = false;
 
   @Prop() updateAppInstance: (
     appInstance: { id: AppInstanceID }
   ) => void = () => {};
-  @Prop() updateOpponent: (opponent: any) => void = () => {};
+  @Prop() proposeVirtualInstall: () => void = () => {};
+  @Prop() matchmake: () => void = () => {};
 
   async componentWillLoad() {
     this.myName = this.account.user.username;
@@ -55,165 +54,17 @@ export class AppWager {
     return await this.matchmake();
   }
 
-  /**
-   * Bob(Proposing) clicks the Play! button. He is routed to a waiting room to wait for an opponent
-   * @param e
-   */
-  async handlePlay(e: Event): Promise<void> {
+  handlePlay(e: Event): void {
     e.preventDefault();
 
-    this.isWaiting = true;
-
-    try {
-      const initialState: HighRollerAppState = {
-        playerAddrs: [
-          this.account.user.ethAddress,
-          this.opponent.attributes.ethAddress
-        ],
-        stage: HighRollerStage.PRE_GAME,
-        salt: HashZero,
-        commitHash: HashZero,
-        playerFirstNumber: 0,
-        playerSecondNumber: 0,
-        playerNames: [
-          this.account.user.username,
-          this.opponent.attributes.username
-        ]
-      };
-
-      await this.appFactory.proposeInstallVirtual({
-        initialState,
-        proposedToIdentifier: this.opponent.attributes.nodeAddress as string,
-        asset: {
-          assetType: 0 /* AssetType.ETH */
-        },
-        peerDeposit: 0, // ethers.utils.parseEther(this.betAmount),
-        myDeposit: 0, // ethers.utils.parseEther(this.betAmount),
-        timeout: 10000,
-        intermediaries: [this.intermediary]
-      });
-    } catch (e) {
-      debugger;
-    }
-  }
-
-  async matchmake(): Promise<any> {
-    try {
-      const result = await this.fetchMatchmake();
-
-      this.opponent = {
-        attributes: {
-          username: result.data.attributes.username,
-          nodeAddress: result.data.attributes.nodeAddress,
-          ethAddress: result.data.attributes.ethAddress
-        }
-      };
-      this.intermediary = result.data.attributes.intermediary;
-      this.isError = false;
-      this.error = null;
-
-      this.updateOpponent(this.opponent);
-    } catch (error) {
-      this.isError = true;
-      this.error = error;
-    }
+    this.proposeVirtualInstall();
   }
 
   handleChange(e: Event, prop: string): void {
     this[prop] = (e.target as HTMLInputElement).value;
   }
 
-  private async fetchMatchmake(): Promise<{ [key: string]: any }> {
-    if (this.standalone) {
-      return {
-        data: {
-          type: "matchmaking",
-          id: "2b83cb14-c7aa-5208-8da8-369aeb1a3f24",
-          attributes: {
-            intermediary: this.account.multisigAddress
-          },
-          relationships: {
-            users: {
-              data: {
-                type: "users",
-                id: this.account.user.id
-              }
-            },
-            matchedUser: {
-              data: {
-                type: "matchedUsers",
-                id: "3d54b508-b355-4323-8738-4cdf7290a2fd"
-              }
-            }
-          }
-        },
-        included: [
-          {
-            type: "users",
-            id: this.account.user.id,
-            attributes: {
-              username: this.account.user.username,
-              ethAddress: this.account.user.ethAddress
-            }
-          },
-          {
-            type: "matchedUsers",
-            id: "3d54b508-b355-4323-8738-4cdf7290a2fd",
-            attributes: {
-              username: "MyOpponent",
-              ethAddress: "0x12345"
-            }
-          }
-        ]
-      };
-    }
-
-    return new Promise(resolve => {
-      const onMatchmakeResponse = (event: MessageEvent) => {
-        if (
-          !event.data.toString().startsWith("playground:response:matchmake")
-        ) {
-          return;
-        }
-
-        window.removeEventListener("message", onMatchmakeResponse);
-
-        const [, data] = event.data.split("|");
-        resolve(JSON.parse(data));
-      };
-
-      window.addEventListener("message", onMatchmakeResponse);
-
-      window.parent.postMessage("playground:request:matchmake", "*");
-    });
-  }
-
   render() {
-    if (this.isError) {
-      return (
-        <div class="wrapper">
-          <div class="wager">
-            <div class="message">
-              <img
-                class="message__icon"
-                src="/assets/images/logo.svg"
-                alt="High Roller"
-              />
-              <h1 class="message__title">Oops! :/</h1>
-              <p class="message__body">
-                Something went wrong:
-                <textarea>
-                  {this.error instanceof Error
-                    ? `${this.error.message}: ${this.error.stack}`
-                    : JSON.stringify(this.error)}
-                </textarea>
-              </p>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
     if (this.isWaiting) {
       return (
         <app-waiting
@@ -273,6 +124,5 @@ CounterfactualTunnel.injectProps(AppWager, [
   "appFactory",
   "updateAppInstance",
   "account",
-  "opponent",
   "standalone"
 ]);
