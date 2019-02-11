@@ -252,7 +252,7 @@ export class AppRoot {
       console.log(initialState)
       await this.state.appFactory.proposeInstallVirtual({
         initialState,
-        respondingAddress: this.state.opponent.attributes.nodeAddress as string,
+        proposedToIdentifier: this.state.opponent.attributes.nodeAddress as string,
         asset: {
           assetType: 0 /* AssetType.ETH */
         },

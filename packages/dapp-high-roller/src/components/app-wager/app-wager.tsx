@@ -4,7 +4,6 @@ import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
-import { HighRollerAppState, HighRollerStage } from "../../data/game-types";
 import { Address, AppInstanceID, cf } from "../../data/types";
 
 const { HashZero } = ethers.constants;

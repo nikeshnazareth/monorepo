@@ -4,9 +4,7 @@ function getProp(propertyName: string, context: { [key: string]: any }) {
   const location = context.history.location || {};
   const state = location.state || {};
   const query = location.query || {};
-  const query = context.history.location
-    ? context.history.location.query || {}
-    : {};
+  
   return state[propertyName] || query[propertyName] || context[propertyName];
 }
 
