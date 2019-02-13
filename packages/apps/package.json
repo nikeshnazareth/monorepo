@@ -24,7 +24,7 @@
     "@counterfactual/types": "0.0.1",
     "@counterfactual/typescript-typings": "0.0.1",
     "@types/chai": "^4.1.7",
-    "@types/mocha": "^5.2.5",
+    "@types/mocha": "^5.2.6",
     "chai": "^4.2.0",
     "ethereum-waffle": "2.0.4",
     "ethers": "https://github.com/ethers-io/ethers.js.git",
