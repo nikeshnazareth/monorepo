@@ -2,7 +2,7 @@ import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
 import ETHBucket from "@counterfactual/contracts/build/ETHBucket.json";
 import NonceRegistry from "@counterfactual/contracts/build/NonceRegistry.json";
 import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
-import { NetworkContext } from "@counterfactual/types";
+import { NetworkContext, AssetType } from "@counterfactual/types";
 import { AddressZero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 
@@ -10,6 +10,7 @@ import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
 import { MessageRouter, MiniNode } from "./mininode";
 import { WaffleLegacyOutput } from "./waffle-type";
+import { bigNumberify } from "ethers/utils";
 
 const JEST_TEST_WAIT_TIME = 30000;
 
@@ -46,23 +47,32 @@ describe("test", async () => {
   jest.setTimeout(JEST_TEST_WAIT_TIME);
 
   it("test", async () => {
-    const mininodeA = new MiniNode(network, provider);
-    const mininodeB = new MiniNode(network, provider);
 
-    const mr = new MessageRouter([mininodeA, mininodeB]);
+    for (let i = 0; i < 10; i++) {
 
-    mininodeA.scm = await mininodeA.ie.runSetupProtocol({
-      initiatingXpub: mininodeA.xpub,
-      respondingXpub: mininodeB.xpub,
-      multisigAddress: AddressZero
-    });
+      const start = new Date();
 
-    console.log(mininodeA.scm);
-    console.log(mininodeB.scm);
+      const mininodeA = new MiniNode(network, provider);
+      const mininodeB = new MiniNode(network, provider);
+
+      const mr = new MessageRouter([mininodeA, mininodeB]);
+
+      mininodeA.scm = await mininodeA.ie.runSetupProtocol({
+        initiatingXpub: mininodeA.xpub,
+        respondingXpub: mininodeB.xpub,
+        multisigAddress: AddressZero
+      });
+
+      mr.assertNoPending();
+
+      const end = new Date();
+
+      const time = end.getTime() - start.getTime();
+      console.log('Timer:', name, 'finished in', time, 'ms');
+    }
 
     // todo: if nodeB is still busy doing stuff, we should wait for it
 
-    mr.assertNoPending();
 
     // await mininodeA.ie.runInstallProtocol(
     //   mininodeA.scm, {
