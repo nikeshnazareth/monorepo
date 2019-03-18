@@ -38,7 +38,10 @@ export function renderFreeBalanceInEth(
 }
 
 export async function fetchMultisig(baseURL: string, token: string) {
+  console.log("getting user");
   const bot = await getUser(baseURL, token);
+  console.log("got user");
+  console.log(bot);
   if (!bot.multisigAddress) {
     console.info(
       `The Bot doesn't have a channel with the Playground yet...Waiting for another ${DELAY_SECONDS} seconds`

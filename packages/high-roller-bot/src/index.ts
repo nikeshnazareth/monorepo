@@ -101,7 +101,12 @@ let node: Node;
       console.log(
         `Getting pre-existing user ${user.username} account: ${token}`
       );
-      bot = await getUser(BASE_URL, token);
+      try {
+        bot = await getUser(BASE_URL, token);
+      } catch (e) {
+        console.log("Failed to get user");
+        console.error(e);
+      }
     } else {
       bot = await createAccount(BASE_URL, user, signature);
       token = bot.token;
@@ -113,15 +118,19 @@ let node: Node;
       ]);
       console.log(`Account created\n`, bot);
     }
+    try {
+      const multisigAddress = await fetchMultisig(BASE_URL, token!);
+      console.log("Account multisig address:", multisigAddress);
 
-    const multisigAddress = await fetchMultisig(BASE_URL, token!);
-    console.log("Account multisig address:", multisigAddress);
+      if (process.env.DEPOSIT_AMOUNT) {
+        await deposit(node, process.env.DEPOSIT_AMOUNT, multisigAddress);
+      }
 
-    if (process.env.DEPOSIT_AMOUNT) {
-      await deposit(node, process.env.DEPOSIT_AMOUNT, multisigAddress);
+      afterUser(user.username, node, bot.nodeAddress, multisigAddress);
+    } catch (e) {
+      console.log("failed to proceed");
+      console.error(e);
     }
-
-    afterUser(user.username, node, bot.nodeAddress, multisigAddress);
   } catch (e) {
     console.error("\n");
     console.error(e);

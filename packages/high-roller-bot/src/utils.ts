@@ -38,7 +38,9 @@ export function renderFreeBalanceInEth(
 }
 
 export async function fetchMultisig(baseURL: string, token: string) {
+  console.log(1);
   const bot = await getUser(baseURL, token);
+  console.log(2);
   if (!bot.multisigAddress) {
     console.info(
       `The Bot doesn't have a channel with the Playground yet...Waiting for another ${DELAY_SECONDS} seconds`
@@ -46,6 +48,7 @@ export async function fetchMultisig(baseURL: string, token: string) {
     // Convert to milliseconds
     await delay(DELAY_SECONDS * 1000).then(() => fetchMultisig(baseURL, token));
   }
+  console.log(3);
   return (await getUser(baseURL, token)).multisigAddress;
 }
 
@@ -161,16 +164,19 @@ async function get(
   let response;
   let retriesAvailable = 10;
 
-  while (typeof response === undefined && retriesAvailable > 0) {
+  while (typeof response === "undefined" && retriesAvailable > 0) {
     try {
       response = (await httpResponse.json()) as APIResponse;
     } catch (e) {
       retriesAvailable -= 1;
-      if (e.type === "invalid-json" && retriesAvailable > 0) await delay(1000);
+      if (e.type === "invalid-json" && retriesAvailable > 0) await delay(3000);
       else throw e;
     }
   }
 
+  console.log("got here");
+  console.log(retriesAvailable);
+  console.log(response);
   if (response.errors) {
     const error = response.errors[0] as APIError;
     throw error;
@@ -288,8 +294,11 @@ export async function getUser(
   }
 
   try {
+    console.log(1);
     const json = (await get(baseURL, "users/me", token)) as APIResponse;
+    console.log(json);
     const resource = json.data[0] as APIResource<UserAttributes>;
+    console.log(resource);
 
     return fromAPIResource<UserSession, UserAttributes>(resource);
   } catch (e) {

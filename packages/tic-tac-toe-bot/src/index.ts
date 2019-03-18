@@ -110,15 +110,19 @@ let node: Node;
       ]);
       console.log(`Account created\n`, bot);
     }
+    try {
+      const multisigAddress = await fetchMultisig(BASE_URL, token!);
+      console.log("Account multisig address:", multisigAddress);
 
-    const multisigAddress = await fetchMultisig(BASE_URL, token!);
-    console.log("Account multisig address:", multisigAddress);
+      if (process.env.DEPOSIT_AMOUNT) {
+        await deposit(node, process.env.DEPOSIT_AMOUNT, multisigAddress);
+      }
 
-    if (process.env.DEPOSIT_AMOUNT) {
-      await deposit(node, process.env.DEPOSIT_AMOUNT, multisigAddress);
+      afterUser(user.username, node, bot.nodeAddress, multisigAddress);
+    } catch (e) {
+      console.log("failed to proceed");
+      console.error(e);
     }
-
-    afterUser(user.username, node, bot.nodeAddress, multisigAddress);
   } catch (e) {
     console.error("\n");
     console.error(e);
