@@ -42,5 +42,10 @@
   },
   "bugs": {
     "url": "https://github.com/counterfactual/monorepo/issues"
-  }
+  },
+  "keywords": [
+    "ethereum",
+    "counterfactual",
+    "state channels"
+  ]
 }

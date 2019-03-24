@@ -31,5 +31,10 @@
   },
   "dependencies": {
     "eventemitter3": "^3.1.0"
-  }
+  },
+  "keywords": [
+    "ethereum",
+    "counterfactual",
+    "state channels"
+  ]
 }

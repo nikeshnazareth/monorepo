@@ -32,5 +32,10 @@
     "puppeteer": "1.13.0",
     "typescript": "^3.3.3333",
     "workbox-build": "3.4.1"
-  }
+  },
+  "keywords": [
+    "ethereum",
+    "counterfactual",
+    "state channels"
+  ]
 }

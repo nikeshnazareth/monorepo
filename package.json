@@ -1,10 +1,9 @@
 {
   "private": true,
-  "workspaces": {
-    "packages": [
-      "packages/*"
-    ]
-  },
+  "version": "0.1.16",
+  "workspaces": [
+    "packages/*"
+  ],
   "engines": {
     "yarn": "^1.10"
   },
@@ -12,13 +11,17 @@
     "build": "sh build.sh",
     "clean": "git clean -Xdf --exclude=\"!.env\"",
     "clean:dry": "git clean -Xdn --exclude=\"!.env\"",
-    "test": "lerna run --stream --concurrency 1 test",
-    "test:ci-non-playground": "lerna run --ignore @counterfactual/playground --ignore @counterfactual/playground-server --ignore @counterfactual/dapp-tic-tac-toe --ignore @counterfactual/dapp-high-roller --stream --concurrency 1 test",
-    "lint": "lerna run lint --parallel --no-bail",
-    "lint:fix": "lerna run lint:fix --parallel --no-bail",
-    "run:playground": "lerna run start --parallel --scope=**/playground --scope=**/playground-server --scope=**/dapp-high-roller --scope=**/dapp-tic-tac-toe",
-    "publish": "lerna publish --yes from-package patch",
+    "test": "oao run-script test",
+    "test:ci-non-playground": "oao run-script --ignore-src 'packages/{playground,dapp-high-roller,dapp-tic-tac-toe,playground-server}' test",
+    "lint": "oao run-script --parallel --ignore-errors lint",
+    "lint:fix": "oao run-script --parallel --ignore-errors lint:fix",
+    "run:playground": "oao run-script --no-parallel-logs --parallel --ignore-src 'packages/!(dapp-tic-tac-toe|dapp-high-roller|playground|playground-server)' start",
+    "publish": "oao publish --no-confirm --increment-version-by patch",
     "postinstall": "patch-package"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
   },
   "keywords": [
     "ethereum",
@@ -26,7 +29,7 @@
     "state channels"
   ],
   "devDependencies": {
-    "lerna": "^3.8.4",
+    "oao": "^1.6.0",
     "patch-package": "^6.0.4",
     "postinstall-postinstall": "^2.0.0",
     "prettier": "1.16.4",

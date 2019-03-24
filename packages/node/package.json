@@ -42,5 +42,10 @@
     "firebase": "5.9.1",
     "p-queue": "^4.0.0",
     "uuid": "^3.3.2"
-  }
+  },
+  "keywords": [
+    "ethereum",
+    "counterfactual",
+    "state channels"
+  ]
 }

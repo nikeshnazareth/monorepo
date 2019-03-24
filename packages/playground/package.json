@@ -39,5 +39,10 @@
     "puppeteer": "1.13.0",
     "rollup-plugin-replace": "^2.1.0",
     "workbox-build": "3.6.3"
-  }
+  },
+  "keywords": [
+    "ethereum",
+    "counterfactual",
+    "state channels"
+  ]
 }
