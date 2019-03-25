@@ -52,9 +52,12 @@ export default class CreateChannelController extends NodeController {
 
     const tx = await this.sendMultisigDeployTx(owners, wallet, networkContext);
 
-    tx.wait(blocksNeededForConfirmation).then(receipt =>
-      this.handleDeployedMultisigOnChain(receipt, requestHandler, params)
-    );
+    console.log("waiting for channel to get created");
+    tx.wait(blocksNeededForConfirmation).then(async receipt => {
+      console.log("channel got created");
+      await this.handleDeployedMultisigOnChain(receipt, requestHandler, params);
+      console.log("handled deployment");
+    });
 
     return { transactionHash: tx.hash! };
   }
@@ -64,6 +67,7 @@ export default class CreateChannelController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.CreateChannelParams
   ) {
+    console.log("handling multisig deployment");
     const { owners } = params;
     const {
       publicIdentifier,
@@ -75,13 +79,17 @@ export default class CreateChannelController extends NodeController {
     let multisigAddress: string;
 
     try {
+      console.log(1);
       multisigAddress = (receipt["events"] as Event[])!.pop()!.args![0];
+      console.log(2);
     } catch (e) {
       console.error(`Invalid multisig deploy tx receipt: ${receipt}`);
       throw e;
     }
 
+    console.log(3);
     const [respondingXpub] = owners.filter(x => x !== publicIdentifier);
+    console.log(4);
 
     await store.saveStateChannel(
       (await instructionExecutor.runSetupProtocol({
@@ -90,6 +98,7 @@ export default class CreateChannelController extends NodeController {
         initiatingXpub: publicIdentifier
       })).get(multisigAddress)!
     );
+    console.log(5);
 
     const msg: CreateChannelMessage = {
       from: publicIdentifier,
@@ -100,10 +109,15 @@ export default class CreateChannelController extends NodeController {
         counterpartyXpub: respondingXpub
       } as Node.CreateChannelResult
     };
+    console.log(6);
 
     await messagingService.send(respondingXpub, msg);
+    console.log(7);
 
+    console.log("channel created");
+    console.log(msg.data);
     requestHandler.outgoing.emit(NODE_EVENTS.CREATE_CHANNEL, msg.data);
+    console.log(8);
   }
 
   private async sendMultisigDeployTx(

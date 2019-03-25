@@ -241,6 +241,8 @@ export async function onDepositConfirmed(response: DepositConfirmationMessage) {
 export async function onMultisigDeployed(
   result: NodeTypes.CreateChannelResult
 ) {
+  console.log("got multisig deployed msg");
+  console.log(result);
   await bindMultisigToUser(
     result.counterpartyXpub, // FIXME: Not standard data flow
     result.multisigAddress

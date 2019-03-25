@@ -1,6 +1,6 @@
 import { Operation, OperationProcessor } from "@ebryn/jsonapi-ts";
 
-import { getUser } from "../../db";
+import { bindTransactionHashToUser, getUser } from "../../db";
 import NodeWrapper from "../../node";
 import informSlack from "../../utils";
 import User from "../user/resource";
@@ -20,12 +20,16 @@ export default class MultisigDeployProcessor extends OperationProcessor<
     const { transactionHash } = await NodeWrapper.createStateChannelFor(
       user.attributes.nodeAddress
     );
+    console.log("got tx hash");
+    console.log(transactionHash);
 
     informSlack(
       `📄 *MULTISIG_TX_BROADCASTED* (_${
         user.attributes.username
       }_) | Broadcasted multisig creation transaction <http://kovan.etherscan.io/tx/${transactionHash}|_(view on etherscan)_>.`
     );
+
+    await bindTransactionHashToUser(user, transactionHash);
 
     return {
       type: "multisig-deploy",
